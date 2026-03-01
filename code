@@ -1,0 +1,156 @@
+// Restaurant Backend Server
+// Assignment 2 – Hardcoded Menu Server
+
+const express = require("express");
+const app = express();
+
+app.use(express.json());
+
+// -----------------------------
+// Restaurant Information
+// -----------------------------
+const restaurant = {
+  name: "FoodHub Restaurant",
+  location: "Rawalpindi",
+  contact: "+92 300 1234567"
+};
+
+// -----------------------------
+// Menu Data (Catalog)
+// -----------------------------
+const menu = [
+  {
+    id: 1,
+    name: "Margherita Pizza",
+    price: 12,
+    category: "Pizza",
+    image: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092"
+  },
+  {
+    id: 2,
+    name: "Cheese Burger",
+    price: 10,
+    category: "Fast Food",
+    image: "https://images.unsplash.com/photo-1550547660-d9450f859349"
+  },
+  {
+    id: 3,
+    name: "Chicken Biryani",
+    price: 8,
+    category: "Pakistani Food",
+    image: "https://images.unsplash.com/photo-1631515242808-497c3fbd3978"
+  },
+  {
+    id: 4,
+    name: "Pasta Alfredo",
+    price: 11,
+    category: "Italian",
+    image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5"
+  },
+  {
+    id: 5,
+    name: "Chocolate Milkshake",
+    price: 5,
+    category: "Drinks",
+    image: "https://images.unsplash.com/photo-1572490122747-3968b75cc699"
+  }
+];
+
+// -----------------------------
+// Home Route
+// -----------------------------
+app.get("/", (req, res) => {
+  res.json({
+    restaurant: restaurant,
+    message: "Welcome to FoodHub API",
+    endpoints: {
+      menu: "/menu",
+      singleItem: "/menu/:id",
+      search: "/search?name=item",
+      order: "/order"
+    }
+  });
+});
+
+// -----------------------------
+// Get Full Menu
+// -----------------------------
+app.get("/menu", (req, res) => {
+  res.json({
+    totalItems: menu.length,
+    menu: menu
+  });
+});
+
+// -----------------------------
+// Get Single Menu Item
+// -----------------------------
+app.get("/menu/:id", (req, res) => {
+
+  const id = parseInt(req.params.id);
+
+  const item = menu.find(m => m.id === id);
+
+  if (!item) {
+    return res.status(404).json({
+      message: "Menu item not found"
+    });
+  }
+
+  res.json(item);
+});
+
+// -----------------------------
+// Search Menu
+// -----------------------------
+app.get("/search", (req, res) => {
+
+  const name = req.query.name;
+
+  const results = menu.filter(item =>
+    item.name.toLowerCase().includes(name.toLowerCase())
+  );
+
+  res.json({
+    results: results
+  });
+
+});
+
+// -----------------------------
+// Order Endpoint
+// -----------------------------
+app.post("/order", (req, res) => {
+
+  const order = req.body;
+
+  const orderDetails = {
+    orderId: Math.floor(Math.random() * 10000),
+    time: new Date(),
+    customer: order.customerName,
+    item: order.item,
+    quantity: order.quantity
+  };
+
+  console.log("📦 New Order Received");
+  console.log(orderDetails);
+
+  res.json({
+    message: "Order placed successfully",
+    order: orderDetails
+  });
+
+});
+
+// -----------------------------
+// Server Start
+// -----------------------------
+const PORT = 3000;
+
+app.listen(PORT, () => {
+
+  console.log("🚀 FoodHub Server Running");
+  console.log(`Home: http://localhost:${3000}`);
+  console.log(`Menu: http://localhost:${3000}/menu`);
+  console.log(`Search Example: http://localhost:${3000}/search?name=pizza`);
+});
